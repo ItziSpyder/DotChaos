@@ -1,7 +1,5 @@
 package io.github.itzispyder.dotchaos.data;
 
-import io.github.itzispyder.dotchaos.Main;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -16,17 +14,9 @@ public class Textures {
 
     public static BufferedImage register(String path) {
         try {
-            String location = "assets/dotchaos/" + path;
-            ClassLoader loader = Main.class.getClassLoader();
-
-            if (loader == null) {
-                throw new IllegalStateException("main class loader is null");
-            }
-
-            InputStream resource = loader.getResourceAsStream(location);
-
+            InputStream resource = ResourceFinder.read(path);
             if (resource == null) {
-                throw new IllegalStateException("resource does not exist");
+                return null;
             }
 
             BufferedImage image = ImageIO.read(resource);
@@ -37,9 +27,5 @@ public class Textures {
             ex.printStackTrace();
         }
         return null;
-    }
-
-    public static void init() {
-
     }
 }

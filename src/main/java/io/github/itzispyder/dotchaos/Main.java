@@ -32,10 +32,12 @@ public class Main {
     public static void startGameLoop() {
         renderThread = new Thread(() -> {
             try {
-                while (!gameLoopPaused.get()) {
-                    window.runOnCurrentScreen((window1, screen) -> screen.repaint());
-                    // 60 frames per second
-                    Thread.sleep(1000 / 60);
+                while (true) {
+                    if (!gameLoopPaused.get() && window.isFocused()) {
+                        window.runOnCurrentScreen((window1, screen) -> screen.repaint());
+                        // 60 frames per second
+                        Thread.sleep(1000 / 60);
+                    }
                 }
             }
             catch (InterruptedException ex) {
@@ -47,10 +49,12 @@ public class Main {
 
         gameThread = new Thread(() -> {
             try {
-                while (!gameLoopPaused.get()) {
-                    window.runOnCurrentScreen((window1, screen) -> screen.tick());
-                    // 50 times per second
-                    Thread.sleep(1000 / 50);
+                while (true) {
+                    if (!gameLoopPaused.get() && window.isFocused()) {
+                        window.runOnCurrentScreen((window1, screen) -> screen.tick());
+                        // 50 times per second
+                        Thread.sleep(1000 / 50);
+                    }
                 }
             }
             catch (InterruptedException ex) {

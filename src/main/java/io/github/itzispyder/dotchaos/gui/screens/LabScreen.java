@@ -1,6 +1,7 @@
 package io.github.itzispyder.dotchaos.gui.screens;
 
 import io.github.itzispyder.dotchaos.Main;
+import io.github.itzispyder.dotchaos.data.Sounds;
 import io.github.itzispyder.dotchaos.data.Textures;
 import io.github.itzispyder.dotchaos.fun.object.Bead;
 import io.github.itzispyder.dotchaos.fun.object.BulletDent;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LabScreen extends Screen {
 
+    public static int score = 100;
     public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>();
     public final ConcurrentLinkedQueue<BulletDent> dents = new ConcurrentLinkedQueue<>();
     public int mouseX, mouseY, gridX, gridY, gridThreshold = 50;
@@ -70,9 +72,9 @@ public class LabScreen extends Screen {
     }
 
     public void renderBackground(Graphics2D g) {
-        g.setColor(Color.DARK_GRAY.darker());
+        g.setColor(Color.DARK_GRAY.darker().darker());
         g.fillRect(getX(), getY(), getWidth() + 1, getHeight() + 1);
-        g.setColor(Color.DARK_GRAY.brighter());
+        g.setColor(Color.DARK_GRAY.darker());
 
         Rectangle r = getBounds();
         r.x -= gridThreshold;
@@ -108,6 +110,7 @@ public class LabScreen extends Screen {
         for (Bead bead : beads) {
             if (System.currentTimeMillis() > bead.destroyAt) {
                 beads.remove(bead);
+                score--;
             }
             checkCollision(bead);
             bead.onTick();
@@ -135,9 +138,12 @@ public class LabScreen extends Screen {
             int r = bead.getRadius();
             if (mouseX > bead.x - r && mouseX < bead.x + r && mouseY > bead.y - r && mouseY < bead.y + r) {
                 beads.remove(bead);
-                bead.tryExplodeInLab(this);
                 dents.add(new BulletDent(mouseX, mouseY));
                 lastShot = System.currentTimeMillis();
+                score++;
+
+                bead.tryExplodeInLab(this);
+                Sounds.play(Sounds.EXPLOSION);
                 break;
             }
         }
@@ -151,6 +157,29 @@ public class LabScreen extends Screen {
     @Override
     public void mouseReleased(MouseEvent e) {
         mouseDown = false;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        int dx = e.getX() - Main.window.getInsets().left - mouseX;
+        int dy = e.getY() - Main.window.getInsets().top - mouseY;
+
+        if (dx != 0) {
+            if (gridX >= gridThreshold || gridX <= -gridThreshold) {
+                gridX = 0;
+            }
+            int del = dx > 0 ? -1 : 1;
+            gridX += del;
+            dents.forEach(d -> d.x += del);
+        }
+        if (dy != 0) {
+            if (gridY >= gridThreshold || gridY <= -gridThreshold) {
+                gridY = 0;
+            }
+            int del = dy > 0 ? -1 : 1;
+            gridY += del;
+            dents.forEach(d -> d.y += del);
+        }
     }
 
     @Override

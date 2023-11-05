@@ -1,6 +1,7 @@
 package io.github.itzispyder.dotchaos.fun.object;
 
 import io.github.itzispyder.dotchaos.Main;
+import io.github.itzispyder.dotchaos.data.Sounds;
 import io.github.itzispyder.dotchaos.fun.FunObject;
 import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
 import io.github.itzispyder.dotchaos.util.Randomizer;
@@ -12,10 +13,10 @@ import java.awt.*;
 public class Bead extends FunObject {
 
     public static final Randomizer random = new Randomizer();
-    public static final long stayTime = 20_000L;
+    public static final long stayTime = 10_000L;
     public final long createdAt = System.currentTimeMillis();
     public final long destroyAt = createdAt + stayTime;
-    public static final Color to = new Color(64, 64, 64, 255);
+    public static final Color to = new Color(20, 20, 20, 255);
     public final Color from;
     public Color color;
     public Vec2d velocity;
@@ -71,7 +72,7 @@ public class Bead extends FunObject {
 
         x += velocity.x;
         y = (int)MathUtils.clamp(y + -velocity.y, rect.y, rect.y + rect.height - r);
-        velocity.y -= r / 100.0;
+        velocity.y -= r / 110.0;
         velocity.x += velocity.x != 0 ? (velocity.x < 0 ? 1 : -1) : (0);
         velocity.x = (int)velocity.x;
 
@@ -149,6 +150,7 @@ public class Bead extends FunObject {
                 bead.velocity.add(random.getRandomDouble(-max, max), random.getRandomDouble(-max, max));
                 lab.beads.add(bead);
             }
+            Sounds.play(Sounds.POP);
         }
     }
 }
