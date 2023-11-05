@@ -8,6 +8,7 @@ import java.awt.*;
 public abstract class FunObject {
 
     public int x, y, width, height;
+    private Graphics2D graphics;
 
     public FunObject(int x, int y, int width, int height) {
         this.x = x;
@@ -20,6 +21,11 @@ public abstract class FunObject {
 
     public void onTick() {
 
+    }
+
+    public void render(Graphics2D g) {
+        this.graphics = g;
+        onRender(g);
     }
 
     public Vec2i getPosInt() {
@@ -60,5 +66,9 @@ public abstract class FunObject {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public Graphics2D getGraphics() {
+        return graphics;
     }
 }

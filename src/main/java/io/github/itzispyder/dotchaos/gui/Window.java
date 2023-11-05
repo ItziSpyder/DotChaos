@@ -29,12 +29,14 @@ public class Window extends JFrame implements MouseListener {
     public void setCurrentScreen(Screen currentScreen) {
         if (this.currentScreen != null) {
             this.removeMouseListener(this.currentScreen);
+            this.removeMouseMotionListener(this.currentScreen);
             this.remove(this.currentScreen);
         }
 
         this.currentScreen = currentScreen;
         this.add(currentScreen);
         this.addMouseListener(currentScreen);
+        this.addMouseMotionListener(currentScreen);
     }
 
     public Screen getCurrentScreen() {

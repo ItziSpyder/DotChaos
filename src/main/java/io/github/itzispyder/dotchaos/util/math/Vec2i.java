@@ -20,7 +20,7 @@ public class Vec2i {
     public double distanceTo(Vec2i other) {
         int x = other.x - this.x;
         int y = other.y - this.y;
-        return Math.sqrt(x * x + y + y);
+        return Math.sqrt(x * x + y * y);
     }
 
     public double length() {

@@ -16,7 +16,7 @@ public class Vec2d {
     public double distanceTo(Vec2d other) {
         double x = other.x - this.x;
         double y = other.y - this.y;
-        return Math.sqrt(x * x + y + y);
+        return Math.sqrt(x * x + y * y);
     }
 
     public double length() {

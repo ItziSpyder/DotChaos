@@ -5,17 +5,17 @@ import io.github.itzispyder.dotchaos.data.Textures;
 import io.github.itzispyder.dotchaos.fun.object.Bead;
 import io.github.itzispyder.dotchaos.fun.object.BulletDent;
 import io.github.itzispyder.dotchaos.gui.Screen;
-import io.github.itzispyder.dotchaos.gui.Window;
 import io.github.itzispyder.dotchaos.util.Randomizer;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LabScreen extends Screen {
 
     public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>();
     public final ConcurrentLinkedQueue<BulletDent> dents = new ConcurrentLinkedQueue<>();
-    public int mouseX, mouseY;
+    public int mouseX, mouseY, gridX, gridY, gridThreshold = 50;
     public long lastShot;
     public final Randomizer random = new Randomizer();
     public int beadTimer;
@@ -28,12 +28,11 @@ public class LabScreen extends Screen {
     public void onRender(Graphics2D g) {
         renderBackground(g);
 
-        dents.forEach(d -> d.onRender(g));
-        beads.forEach(b -> b.onRender(g));
+        dents.forEach(d -> d.render(g));
+        beads.forEach(b -> b.render(g));
 
         renderTitleBar(g);
         renderMouse(g);
-        renderWater(g);
     }
 
     public void renderMouse(Graphics2D g) {
@@ -64,27 +63,19 @@ public class LabScreen extends Screen {
         g.setColor(Color.DARK_GRAY);
         g.fillRect(getX(), getY(), getWidth(), getHeight());
         g.setColor(Color.DARK_GRAY.brighter());
-        for (int x = getX(); x < getX() + getWidth(); x += 10) {
-            g.drawLine(x, getY(), x, getY() + getHeight());
+
+        Rectangle r = getBounds();
+        r.x -= gridThreshold;
+        r.y -= gridThreshold;
+        r.width += gridThreshold * 2;
+        r.height += gridThreshold * 2;
+
+        for (int x = r.x + gridX; x < r.x + r.width + gridX; x += 10) {
+            g.drawLine(x, r.y, x, r.y + r.height);
         }
-        for (int y = getY(); y < getY() + getHeight(); y += 10) {
-            g.drawLine(getX(), y, getX() + getWidth(), y);
+        for (int y = r.y + gridY; y < r.y + r.height + gridY; y += 10) {
+            g.drawLine(r.x, y, r.x + r.width, y);
         }
-    }
-
-    public void renderWater(Graphics2D g) {
-        Rectangle b = Window.DEFAULT_BOUNDS;
-        int h = 100;
-
-        g.setColor(new Color(132, 157, 211, 94));
-        g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h -= 10;
-        g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h -= 10;
-        g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h -= 10;
-
-        g.fillRect(b.x, b.y + b.height - h, b.width, h);
     }
 
     public void renderTitleBar(Graphics2D g) {
@@ -112,14 +103,14 @@ public class LabScreen extends Screen {
             bead.onTick();
         }
 
-        if (beadTimer++ >= 10) {
-            beads.add(new Bead(0));
+        if (beadTimer++ >= 40) {
+            beads.add(new Bead(-50));
             beadTimer = 0;
         }
     }
 
     public void checkCollision(Bead bead) {
-        bead.flickAgainst(Window.DEFAULT_BOUNDS);
+        //bead.flickAgainst(Window.DEFAULT_BOUNDS);
         shootGun();
 
         for (Bead other : beads) {
@@ -135,11 +126,35 @@ public class LabScreen extends Screen {
             int r = bead.getRadius();
             if (mouseX > bead.x - r && mouseX < bead.x + r && mouseY > bead.y - r && mouseY < bead.y + r) {
                 beads.remove(bead);
+                bead.tryExplodeInLab(this);
                 dents.add(new BulletDent(mouseX, mouseY));
                 lastShot = System.currentTimeMillis();
                 break;
             }
         }
+    }
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        int dx = e.getX() - Main.window.getInsets().left - mouseX;
+        int dy = e.getY() - Main.window.getInsets().top - mouseY;
+        beads.forEach(d -> d.x += dx);
+
+        if (dx != 0) {
+            if (gridX >= gridThreshold || gridX <= -gridThreshold) {
+                gridX = 0;
+            }
+            int del = dx > 0 ? 1 : -1;
+            gridX += del;
+            dents.forEach(d -> d.x += del);
+        }
+        if (dy != 0) {
+            if (gridY >= gridThreshold || gridY <= -gridThreshold) {
+                gridY = 0;
+            }
+            int del = dy > 0 ? 1 : -1;
+            gridY += del;
+            dents.forEach(d -> d.y += del);
+        }
     }
 }

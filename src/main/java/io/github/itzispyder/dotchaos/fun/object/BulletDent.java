@@ -8,7 +8,7 @@ import java.awt.*;
 public class BulletDent extends FunObject {
 
     public final long createdAt = System.currentTimeMillis();
-    public final long destroyAt = createdAt + 2000L;
+    public final long destroyAt = createdAt + 600_000L;
 
     public BulletDent(int x, int y) {
         this(x, y, 30);
