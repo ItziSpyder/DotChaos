@@ -1,8 +1,10 @@
 package io.github.itzispyder.dotchaos;
 
+import io.github.itzispyder.dotchaos.data.Textures;
 import io.github.itzispyder.dotchaos.gui.Window;
 import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Main {
@@ -21,6 +23,7 @@ public class Main {
     public static void initGame() {
         window.setResizable(false);
         window.setCurrentScreen(new LabScreen());
+        BufferedImage image = Textures.Icons.BLAST;
     }
 
     public static void startGameLoop() {

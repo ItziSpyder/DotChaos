@@ -13,6 +13,8 @@ public class Bead extends FunObject {
     public final Randomizer random = new Randomizer();
     public Color color;
     public Vec2d velocity;
+    public final long createdAt = System.currentTimeMillis();
+    public final long destroyAt = createdAt + 2000L;
 
     public Bead(int x, int y, int size, Color color) {
         super(x, y, size, size);
@@ -27,7 +29,7 @@ public class Bead extends FunObject {
 
     public Bead(int x, int y) {
         this(x, y, 10);
-        setRadius(random.getRandomInt(10, 69));
+        setRadius(random.getRandomInt(20, 69));
     }
 
     public Bead(int y) {
@@ -48,7 +50,7 @@ public class Bead extends FunObject {
         x = (int)MathUtils.clamp(x + velocity.x, rect.x, rect.x + rect.width);
         y = (int)MathUtils.clamp(y + -velocity.y, rect.y, rect.y + rect.height);
 
-        velocity.y -= getRadius() / 200.0;
+        velocity.y -= getRadius() / 300.0;
         if (velocity.x != 0) {
             if (velocity.x < 0) {
                 velocity.x++;
@@ -105,7 +107,7 @@ public class Bead extends FunObject {
             velocity.x++;
             bounced = true;
         }
-        if (x + width >= bounds.x + bounds.width) {
+        if (x + getRadius() >= bounds.x + bounds.width) {
             velocity.x--;
             bounced = true;
         }

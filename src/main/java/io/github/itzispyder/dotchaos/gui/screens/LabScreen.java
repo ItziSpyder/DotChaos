@@ -1,23 +1,24 @@
 package io.github.itzispyder.dotchaos.gui.screens;
 
 import io.github.itzispyder.dotchaos.Main;
+import io.github.itzispyder.dotchaos.data.Textures;
 import io.github.itzispyder.dotchaos.fun.object.Bead;
+import io.github.itzispyder.dotchaos.fun.object.BulletDent;
 import io.github.itzispyder.dotchaos.gui.Screen;
 import io.github.itzispyder.dotchaos.gui.Window;
+import io.github.itzispyder.dotchaos.util.Randomizer;
 
 import java.awt.*;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LabScreen extends Screen {
 
-    public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>() {{
-        /*
-        for (int i = 0; i < 10; i++) {
-            this.add(new Bead(0));
-        }
-         */
-    }};
+    public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>();
+    public final ConcurrentLinkedQueue<BulletDent> dents = new ConcurrentLinkedQueue<>();
+    public int mouseX, mouseY;
+    public long lastShot;
+    public final Randomizer random = new Randomizer();
+    public int beadTimer;
 
     public LabScreen() {
 
@@ -26,6 +27,8 @@ public class LabScreen extends Screen {
     @Override
     public void onRender(Graphics2D g) {
         renderBackground(g);
+
+        dents.forEach(d -> d.onRender(g));
         beads.forEach(b -> b.onRender(g));
 
         renderTitleBar(g);
@@ -35,11 +38,20 @@ public class LabScreen extends Screen {
 
     public void renderMouse(Graphics2D g) {
         Point p = Main.window.getMousePosition();
-        int x = p.x;
-        int y = p.y;
+        int x = mouseX = p.x;
+        int y = mouseY = p.y;
         int r = 50;
 
-        g.setColor(new Color(0x30FFFFFF, true));
+        if (System.currentTimeMillis() - lastShot < 30L) {
+            r = 100;
+            double theta = random.getRandomDouble(0.0, 6.28);
+            g.rotate(theta, x, y);
+            g.drawImage(Textures.Icons.BLAST, x - r, y - r, 2 * r, 2 * r, null);
+            g.rotate(-theta, x, y);
+            r = 50;
+        }
+
+        g.setColor(new Color(224, 116, 116, 94));
         g.fillOval(x - r, y - r, r * 2, r * 2);
         r = 25;
         g.fillOval(x - r, y - r, r * 2, r * 2);
@@ -62,14 +74,16 @@ public class LabScreen extends Screen {
 
     public void renderWater(Graphics2D g) {
         Rectangle b = Window.DEFAULT_BOUNDS;
-        int h = 69;
-        g.setColor(new Color(132, 157, 211, 140));
+        int h = 100;
+
+        g.setColor(new Color(132, 157, 211, 94));
         g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h = 64;
+        h -= 10;
         g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h = 50;
+        h -= 10;
         g.fillRect(b.x, b.y + b.height - h, b.width, h);
-        h = 42;
+        h -= 10;
+
         g.fillRect(b.x, b.y + b.height - h, b.width, h);
     }
 
@@ -83,29 +97,49 @@ public class LabScreen extends Screen {
         String info = "beads: %s,   memory: %s".formatted(beads.size(), Main.getMemPercentage()) + "%";
         g.setColor(Color.LIGHT_GRAY);
         g.setFont(new Font("Impact", Font.PLAIN, 20));
-        g.drawString(info, Main.window.getWidth() / 3, 40);
+        g.drawString(info, 250, 40);
     }
 
     @Override
     public void tick() {
+        dents.removeIf(dent -> System.currentTimeMillis() > dent.destroyAt);
+
         for (Bead bead : beads) {
+            if (System.currentTimeMillis() > bead.destroyAt) {
+                beads.remove(bead);
+            }
             checkCollision(bead);
             bead.onTick();
         }
 
-        try {
+        if (beadTimer++ >= 10) {
             beads.add(new Bead(0));
+            beadTimer = 0;
         }
-        catch (ConcurrentModificationException ignore) {}
     }
 
     public void checkCollision(Bead bead) {
         bead.flickAgainst(Window.DEFAULT_BOUNDS);
+        shootGun();
+
         for (Bead other : beads) {
             if (other.overlaps(bead)) {
                 other.flickAgainst(bead);
                 break;
             }
         }
+    }
+
+    public void shootGun() {
+        for (Bead bead : beads) {
+            int r = bead.getRadius();
+            if (mouseX > bead.x - r && mouseX < bead.x + r && mouseY > bead.y - r && mouseY < bead.y + r) {
+                beads.remove(bead);
+                dents.add(new BulletDent(mouseX, mouseY));
+                lastShot = System.currentTimeMillis();
+                break;
+            }
+        }
+
     }
 }

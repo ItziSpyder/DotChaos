@@ -2,16 +2,19 @@ package io.github.itzispyder.dotchaos.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.function.BiConsumer;
 
-public class Window extends JFrame {
+public class Window extends JFrame implements MouseListener {
 
-    public static final Rectangle DEFAULT_BOUNDS = new Rectangle(0, 0, 800, 500);
+    public static final Rectangle DEFAULT_BOUNDS = new Rectangle(0, 0, 1000, 600);
     public Screen currentScreen;
     public Point lastMousePosition;
 
     public Window(String title) {
         super(title);
+        this.addMouseListener(this);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
         this.setBounds(DEFAULT_BOUNDS);
@@ -24,9 +27,14 @@ public class Window extends JFrame {
     }
 
     public void setCurrentScreen(Screen currentScreen) {
-        this.remove(currentScreen);
+        if (this.currentScreen != null) {
+            this.removeMouseListener(this.currentScreen);
+            this.remove(this.currentScreen);
+        }
+
         this.currentScreen = currentScreen;
         this.add(currentScreen);
+        this.addMouseListener(currentScreen);
     }
 
     public Screen getCurrentScreen() {
@@ -52,5 +60,30 @@ public class Window extends JFrame {
             lastMousePosition = new Point(x, y);
             return lastMousePosition;
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

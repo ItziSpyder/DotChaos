@@ -2,8 +2,10 @@ package io.github.itzispyder.dotchaos.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-public abstract class Screen extends JPanel {
+public abstract class Screen extends JPanel implements MouseListener {
 
     public Screen() {
 
@@ -20,6 +22,31 @@ public abstract class Screen extends JPanel {
     }
 
     public void tick() {
+
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
 
     }
 }
