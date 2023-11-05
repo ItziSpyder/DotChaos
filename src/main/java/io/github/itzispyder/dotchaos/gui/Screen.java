@@ -18,7 +18,7 @@ public abstract class Screen extends JPanel implements MouseListener, MouseMotio
     public void paint(Graphics g) {
         super.paint(g);
         g.setColor(Color.WHITE);
-        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        g.fillRect(getX(), getY(), getWidth() + 1, getHeight() + 1);
         this.onRender((Graphics2D) g);
     }
 

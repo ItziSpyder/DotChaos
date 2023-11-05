@@ -2,7 +2,6 @@ package io.github.itzispyder.dotchaos.fun.object;
 
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.fun.FunObject;
-import io.github.itzispyder.dotchaos.gui.Window;
 import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
 import io.github.itzispyder.dotchaos.util.Randomizer;
 import io.github.itzispyder.dotchaos.util.math.MathUtils;
@@ -12,58 +11,72 @@ import java.awt.*;
 
 public class Bead extends FunObject {
 
-    public final Randomizer random = new Randomizer();
+    public static final Randomizer random = new Randomizer();
+    public static final long stayTime = 20_000L;
+    public final long createdAt = System.currentTimeMillis();
+    public final long destroyAt = createdAt + stayTime;
+    public static final Color to = new Color(64, 64, 64, 255);
+    public final Color from;
     public Color color;
     public Vec2d velocity;
-    public final long createdAt = System.currentTimeMillis();
-    public final long destroyAt = createdAt + 120_000L;
 
     public Bead(int x, int y, int size, Color color) {
         super(x, y, size, size);
         this.color = color;
         this.velocity = new Vec2d(0, 0);
+        this.from = color;
     }
 
     public Bead(int x, int y, int size) {
-        this(x, y, size, Color.BLACK);
-        setColor(new Color(random.getRandomInt(0, 255), random.getRandomInt(0, 255), random.getRandomInt(0, 255)));
+        this(x, y, size, new Color(random.getRandomInt(20, 235), random.getRandomInt(20, 235), random.getRandomInt(20, 235)));
     }
 
     public Bead(int x, int y) {
-        this(x, y, 10);
-        setRadius(random.getRandomInt(20, 69));
+        this(x, y, random.getRandomInt(100, 180));
     }
 
     public Bead(int y) {
         this(0, y);
-        setX(random.getRandomInt(getRadius(), (int)Window.DEFAULT_BOUNDS.getWidth() - getRadius()));
+        setX(random.getRandomInt(getRadius(), (int)Main.window.getWidth() - getRadius()));
     }
 
     @Override
     public void onRender(Graphics2D g) {
         int r = getRadius();
+        int rSmaller = (r / 4 * 3);
+        Stroke s = g.getStroke();
         g.setColor(getColor());
         g.fillOval(x - r, y - r, width, height);
-        //g.drawRect(x - r, y - r, r * 2, r * 2);
+
+        g.setColor(getColor().brighter());
+        g.setStroke(new BasicStroke(rSmaller / 4.0F));
+        g.drawArc(x - rSmaller, y - rSmaller, 2 * rSmaller, 2 * rSmaller, 90, 45);
+        g.setStroke(s);
+    }
+
+    public void renderBloom(Graphics2D g) {
+        int r = getRadius();
+        Color c = getColor().brighter().brighter();
+
+        g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 15));
+        for (int i = r + 20; i >= r; i -= 3) {
+            g.fillOval(x - i, y - i, i * 2, i * 2);
+        }
     }
 
     @Override
     public void onTick() {
-        Rectangle rect = Window.DEFAULT_BOUNDS;
+        Rectangle rect = Main.window.currentScreen.getBounds();
         int r = getRadius();
 
         x += velocity.x;
         y = (int)MathUtils.clamp(y + -velocity.y, rect.y, rect.y + rect.height - r);
-
         velocity.y -= r / 100.0;
-        if (velocity.x != 0) {
-            if (velocity.x < 0) {
-                velocity.x++;
-            }
-            else {
-                velocity.x--;
-            }
-        }
+        velocity.x += velocity.x != 0 ? (velocity.x < 0 ? 1 : -1) : (0);
+        velocity.x = (int)velocity.x;
+
+        double ratio = (destroyAt - System.currentTimeMillis()) / (double)stayTime;
+        setColor(MathUtils.getColorInRatio(ratio, from, to));
     }
 
     public Color getColor() {
@@ -95,12 +108,16 @@ public class Bead extends FunObject {
         return other != this && getPos().distanceTo(other.getPos()) <= (getRadius() + other.getRadius());
     }
 
-    public boolean onTopOf(Bead other) {
+    public boolean overlapsAny(LabScreen lab) {
+        return lab.beads.stream().anyMatch(this::overlaps);
+    }
+
+    public boolean sittingOn(Bead other) {
         return this.y + this.getRadius() >= other.y - other.getRadius() && overlaps(other);
     }
 
     public boolean sittingOnAny(LabScreen lab) {
-        return lab.beads.stream().anyMatch(this::onTopOf);
+        return lab.beads.stream().anyMatch(this::sittingOn);
     }
 
     public void flickAgainst(Bead other) {
@@ -125,40 +142,13 @@ public class Bead extends FunObject {
         int r = getRadius();
         int max = 10;
 
-        if (r / 2 >= 10) {
+        if (r / 2 >= 30) {
             for (int i = 0; i < 2; i++) {
                 Bead bead = new Bead(x, y - r, width / 4 * 3, color);
+                bead.setColor(this.from);
                 bead.velocity.add(random.getRandomDouble(-max, max), random.getRandomDouble(-max, max));
                 lab.beads.add(bead);
             }
         }
     }
-
-    /*
-    public boolean flickAgainst(Rectangle bounds) {
-        boolean bounced = false;
-        if (x <= bounds.x) {
-            velocity.x++;
-            bounced = true;
-        }
-        if (x + getRadius() >= bounds.x + bounds.width) {
-            velocity.x--;
-            bounced = true;
-        }
-
-        if (y <= bounds.y + 50) {
-            velocity.y--;
-            bounced = true;
-        }
-        if (y + height >= bounds.y + bounds.height) {
-            if (velocity.y < 0) {
-                velocity.y = 0;
-            }
-            velocity.y++;
-            bounced = true;
-        }
-
-        return bounced;
-    }
-     */
 }

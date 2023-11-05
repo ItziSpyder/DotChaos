@@ -19,6 +19,7 @@ public class LabScreen extends Screen {
     public long lastShot;
     public final Randomizer random = new Randomizer();
     public int beadTimer;
+    public boolean mouseDown;
 
     public LabScreen() {
 
@@ -29,6 +30,7 @@ public class LabScreen extends Screen {
         renderBackground(g);
 
         dents.forEach(d -> d.render(g));
+        beads.forEach(b -> b.renderBloom(g));
         beads.forEach(b -> b.render(g));
 
         renderTitleBar(g);
@@ -39,7 +41,7 @@ public class LabScreen extends Screen {
         Point p = Main.window.getMousePosition();
         int x = mouseX = p.x;
         int y = mouseY = p.y;
-        int r = 50;
+        int r;
 
         if (System.currentTimeMillis() - lastShot < 30L) {
             r = 100;
@@ -47,21 +49,29 @@ public class LabScreen extends Screen {
             g.rotate(theta, x, y);
             g.drawImage(Textures.Icons.BLAST, x - r, y - r, 2 * r, 2 * r, null);
             g.rotate(-theta, x, y);
-            r = 50;
         }
 
-        g.setColor(new Color(224, 116, 116, 94));
-        g.fillOval(x - r, y - r, r * 2, r * 2);
-        r = 25;
-        g.fillOval(x - r, y - r, r * 2, r * 2);
+        if (mouseDown) {
+            g.setColor(new Color(255, 255, 255, 10));
+            for (int i = 50; i >= 20; i -= 4) {
+                g.fillOval(x - i, y - i, i * 2, i * 2);
+            }
+        }
+        else {
+            g.setColor(new Color(231, 85, 85, 5));
+            for (int i = 100; i >= 20; i -= 4) {
+                g.fillOval(x - i, y - i, i * 2, i * 2);
+            }
+        }
+
         r = 3;
         g.setColor(Color.RED);
         g.fillOval(x - r, y - r, r * 2, r * 2);
     }
 
     public void renderBackground(Graphics2D g) {
-        g.setColor(Color.DARK_GRAY);
-        g.fillRect(getX(), getY(), getWidth(), getHeight());
+        g.setColor(Color.DARK_GRAY.darker());
+        g.fillRect(getX(), getY(), getWidth() + 1, getHeight() + 1);
         g.setColor(Color.DARK_GRAY.brighter());
 
         Rectangle r = getBounds();
@@ -70,16 +80,16 @@ public class LabScreen extends Screen {
         r.width += gridThreshold * 2;
         r.height += gridThreshold * 2;
 
-        for (int x = r.x + gridX; x < r.x + r.width + gridX; x += 10) {
+        for (int x = r.x + gridX; x < r.x + r.width + gridX; x += 25) {
             g.drawLine(x, r.y, x, r.y + r.height);
         }
-        for (int y = r.y + gridY; y < r.y + r.height + gridY; y += 10) {
+        for (int y = r.y + gridY; y < r.y + r.height + gridY; y += 25) {
             g.drawLine(r.x, y, r.x + r.width, y);
         }
     }
 
     public void renderTitleBar(Graphics2D g) {
-        g.setColor(Color.GRAY);
+        g.setColor(new Color(128, 128, 128, 150));
         g.fillRect(getX(), getY(), getWidth(), 50);
         g.setColor(Color.WHITE);
         g.setFont(new Font("Impact", Font.BOLD, 30));
@@ -103,14 +113,13 @@ public class LabScreen extends Screen {
             bead.onTick();
         }
 
-        if (beadTimer++ >= 40) {
-            beads.add(new Bead(-50));
+        if (beadTimer++ >= 60) {
+            beads.add(new Bead(-400));
             beadTimer = 0;
         }
     }
 
     public void checkCollision(Bead bead) {
-        //bead.flickAgainst(Window.DEFAULT_BOUNDS);
         shootGun();
 
         for (Bead other : beads) {
@@ -132,6 +141,16 @@ public class LabScreen extends Screen {
                 break;
             }
         }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        mouseDown = true;
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        mouseDown = false;
     }
 
     @Override
