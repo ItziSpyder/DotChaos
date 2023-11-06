@@ -13,13 +13,14 @@ import java.awt.*;
 public class Bead extends FunObject {
 
     public static final Randomizer random = new Randomizer();
-    public static final long stayTime = 10_000L;
+    public static final long stayTime = 3_000L;
     public final long createdAt = System.currentTimeMillis();
     public final long destroyAt = createdAt + stayTime;
     public static final Color to = new Color(20, 20, 20, 255);
     public final Color from;
     public Color color;
     public Vec2d velocity;
+    public boolean hitFloor;
 
     public Bead(int x, int y, int size, Color color) {
         super(x, y, size, size);
@@ -33,7 +34,7 @@ public class Bead extends FunObject {
     }
 
     public Bead(int x, int y) {
-        this(x, y, random.getRandomInt(100, 180));
+        this(x, y, random.getRandomInt(100, 198));
     }
 
     public Bead(int y) {
@@ -53,6 +54,11 @@ public class Bead extends FunObject {
         g.setStroke(new BasicStroke(rSmaller / 4.0F));
         g.drawArc(x - rSmaller, y - rSmaller, 2 * rSmaller, 2 * rSmaller, 90, 45);
         g.setStroke(s);
+
+        Font f = g.getFont();
+        g.setFont(new Font("Roboto", Font.BOLD, r));
+        g.drawString("" + getRadius(), x - r / 2, y + r / 2);
+        g.setFont(f);
     }
 
     public void renderBloom(Graphics2D g) {
@@ -71,7 +77,16 @@ public class Bead extends FunObject {
         int r = getRadius();
 
         x += velocity.x;
-        y = (int)MathUtils.clamp(y + -velocity.y, rect.y, rect.y + rect.height - r);
+        y += -velocity.y;
+
+        if (y > rect.y + rect.height - r) {
+            y = rect.y + rect.height - r;
+            if (!hitFloor && Main.window.currentScreen instanceof LabScreen lab) {
+                hitFloor = true;
+                lab.decrementScore(this);
+            }
+        }
+
         velocity.y -= r / 110.0;
         velocity.x += velocity.x != 0 ? (velocity.x < 0 ? 1 : -1) : (0);
         velocity.x = (int)velocity.x;
@@ -145,7 +160,7 @@ public class Bead extends FunObject {
 
         if (r / 2 >= 30) {
             for (int i = 0; i < 2; i++) {
-                Bead bead = new Bead(x, y - r, width / 4 * 3, color);
+                Bead bead = new Bead(x, y - (r / 4 * 3), width / 4 * 3, color);
                 bead.setColor(this.from);
                 bead.velocity.add(random.getRandomDouble(-max, max), random.getRandomDouble(-max, max));
                 lab.beads.add(bead);

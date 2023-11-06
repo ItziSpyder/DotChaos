@@ -10,6 +10,7 @@ public class Sounds {
     public static final String EXPLOSION = "sounds/explode.wav";
     public static final String POP = "sounds/pop.wav";
     public static final String DING = "sounds/ding.wav";
+    public static final String DAMAGE = "sounds/damage.wav";
 
     public static void play(String path) {
         try {

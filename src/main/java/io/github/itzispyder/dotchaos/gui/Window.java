@@ -37,6 +37,7 @@ public class Window extends JFrame implements MouseListener {
         this.add(currentScreen);
         this.addMouseListener(currentScreen);
         this.addMouseMotionListener(currentScreen);
+        this.setVisible(true);
     }
 
     public Screen getCurrentScreen() {

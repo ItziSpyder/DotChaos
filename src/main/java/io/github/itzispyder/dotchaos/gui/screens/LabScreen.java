@@ -7,21 +7,24 @@ import io.github.itzispyder.dotchaos.fun.object.Bead;
 import io.github.itzispyder.dotchaos.fun.object.BulletDent;
 import io.github.itzispyder.dotchaos.gui.Screen;
 import io.github.itzispyder.dotchaos.util.Randomizer;
+import io.github.itzispyder.dotchaos.util.Timer;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LabScreen extends Screen {
 
-    public static int score = 100;
+    public static int score = 10;
     public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>();
     public final ConcurrentLinkedQueue<BulletDent> dents = new ConcurrentLinkedQueue<>();
     public int mouseX, mouseY, gridX, gridY, gridThreshold = 50;
-    public long lastShot;
+    public long lastShot, lastDamage;
     public final Randomizer random = new Randomizer();
     public int beadTimer;
-    public boolean mouseDown;
+    public boolean mouseDown, neverMoved = true;
+    public Timer timer = Timer.start();
 
     public LabScreen() {
 
@@ -32,6 +35,9 @@ public class LabScreen extends Screen {
         renderBackground(g);
 
         dents.forEach(d -> d.render(g));
+
+        renderScore(g);
+
         beads.forEach(b -> b.renderBloom(g));
         beads.forEach(b -> b.render(g));
 
@@ -97,10 +103,52 @@ public class LabScreen extends Screen {
         g.setFont(new Font("Impact", Font.BOLD, 30));
         g.drawString("ItziSpyder's Lab", 10, 40);
 
-        String info = "beads: %s,   memory: %s".formatted(beads.size(), Main.getMemPercentage()) + "%";
+        String info;
+
+        info = "beads: %s,   memory: %s".formatted(beads.size(), Main.getMemPercentage()) + "%";
         g.setColor(Color.LIGHT_GRAY);
         g.setFont(new Font("Impact", Font.PLAIN, 20));
         g.drawString(info, 250, 40);
+
+        info = "Your score: %s".formatted(score);
+        g.setColor(Color.WHITE);
+        g.drawString(info, 500, 40);
+    }
+
+    public void renderScore(Graphics2D g) {
+        g.setFont(new Font("Impact", Font.PLAIN, 100));
+
+        String info = "Score: %s".formatted(score);
+        Rectangle2D rect = g.getFont().getStringBounds(info, g.getFontRenderContext());
+        int x = (int)(getWidth() / 2 - rect.getWidth() / 2);
+        int y = getHeight() / 3;
+
+        g.setColor(Color.BLACK);
+        g.drawString(info, x + 20, y + 20);
+        g.setColor(lastDamage + 500L >= System.currentTimeMillis() ? Color.RED : Color.DARK_GRAY);
+        g.drawString(info, x, y);
+
+        g.setFont(new Font("Impact", Font.PLAIN, 30));
+        info = "Time:   %s".formatted(timer.end().getStamp(false, false, true, true, false));
+        rect = g.getFont().getStringBounds(info, g.getFontRenderContext());
+        x = (int)(getWidth() / 2 - rect.getWidth() / 2);
+        y += 50;
+        g.setColor(Color.BLACK);
+        g.drawString(info, x + 20, y + 20);
+        g.setColor(Color.DARK_GRAY);
+        g.drawString(info, x, y);
+
+        if (neverMoved) {
+            g.setFont(new Font("Impact", Font.PLAIN, 40));
+            info = "<    drag screen to navigate    >";
+            rect = g.getFont().getStringBounds(info, g.getFontRenderContext());
+            x = (int)(getWidth() / 2 - rect.getWidth() / 2);
+            y += 50;
+            g.setColor(Color.BLACK);
+            g.drawString(info, x + 20, y + 20);
+            g.setColor(Color.DARK_GRAY.brighter());
+            g.drawString(info, x, y);
+        }
     }
 
     @Override
@@ -109,8 +157,8 @@ public class LabScreen extends Screen {
 
         for (Bead bead : beads) {
             if (System.currentTimeMillis() > bead.destroyAt) {
+                this.decrementScore(bead);
                 beads.remove(bead);
-                score--;
             }
             checkCollision(bead);
             bead.onTick();
@@ -133,14 +181,30 @@ public class LabScreen extends Screen {
         }
     }
 
+    public void incrementScore(Bead bead) {
+        score += bead.getRadius();
+    }
+
+    public void decrementScore(Bead bead) {
+        Sounds.play(Sounds.DAMAGE);
+        lastDamage = System.currentTimeMillis();
+        score -= bead.getRadius() * 5;
+        if (score <= 0) {
+            score = 0;
+            Timer.End end = timer.end();
+            GameOverScreen.pastRecords.add(end);
+            Main.window.setCurrentScreen(new GameOverScreen(end));
+        }
+    }
+
     public void shootGun() {
         for (Bead bead : beads) {
             int r = bead.getRadius();
             if (mouseX > bead.x - r && mouseX < bead.x + r && mouseY > bead.y - r && mouseY < bead.y + r) {
+                this.incrementScore(bead);
                 beads.remove(bead);
                 dents.add(new BulletDent(mouseX, mouseY));
                 lastShot = System.currentTimeMillis();
-                score++;
 
                 bead.tryExplodeInLab(this);
                 Sounds.play(Sounds.EXPLOSION);
@@ -195,6 +259,7 @@ public class LabScreen extends Screen {
             int del = dx > 0 ? 1 : -1;
             gridX += del;
             dents.forEach(d -> d.x += del);
+            neverMoved = false;
         }
         if (dy != 0) {
             if (gridY >= gridThreshold || gridY <= -gridThreshold) {
@@ -203,6 +268,7 @@ public class LabScreen extends Screen {
             int del = dy > 0 ? 1 : -1;
             gridY += del;
             dents.forEach(d -> d.y += del);
+            neverMoved = false;
         }
     }
 }
