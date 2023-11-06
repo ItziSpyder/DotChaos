@@ -1,6 +1,10 @@
 # DotChaos
 Submerged in an infinite 2d world where dots fall out of the sky.
 
+![demo-gif](./assets/images/dotchaos_clip.gif)
+
+----------
+
 ![demo-image](./assets/images/demo.png)
 
 ## Tips:
