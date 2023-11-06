@@ -8,7 +8,8 @@ import java.util.function.BiConsumer;
 
 public class Window extends JFrame implements MouseListener {
 
-    public static final Rectangle DEFAULT_BOUNDS = new Rectangle(0, 0, 1000, 600);
+    public static final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    public static final Rectangle DEFAULT_BOUNDS = environment.getMaximumWindowBounds();
     public Screen currentScreen;
     public Point lastMousePosition;
 
@@ -16,10 +17,10 @@ public class Window extends JFrame implements MouseListener {
         super(title);
         this.addMouseListener(this);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setVisible(true);
         this.setBounds(DEFAULT_BOUNDS);
         this.setLocationRelativeTo(null);
         this.lastMousePosition = new Point();
+        this.setVisible(true);
     }
 
     public Window() {

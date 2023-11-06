@@ -163,6 +163,7 @@ public class Bead extends FunObject {
                 Bead bead = new Bead(x, y - (r / 4 * 3), width / 4 * 3, color);
                 bead.setColor(this.from);
                 bead.velocity.add(random.getRandomDouble(-max, max), random.getRandomDouble(-max, max));
+                bead.hitFloor = this.hitFloor;
                 lab.beads.add(bead);
             }
             Sounds.play(Sounds.POP);
