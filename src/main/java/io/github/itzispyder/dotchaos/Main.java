@@ -31,38 +31,54 @@ public class Main {
 
     public static void startGameLoop() {
         renderThread = new Thread(() -> {
-            try {
-                while (true) {
-                    if (!gameLoopPaused.get() && window.isFocused()) {
-                        window.runOnCurrentScreen((window1, screen) -> screen.repaint());
-                        // 60 frames per second
-                        Thread.sleep(1000 / 60);
-                    }
+            while (true) {
+                try {
+                    runRenderThreadTick();
+                    // 60 frames per second
+                    Thread.sleep(1000 / 60);
                 }
-            }
-            catch (InterruptedException ex) {
-                ex.printStackTrace();
-                System.exit(-1);
+                catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
         }, "Render Thread");
         renderThread.start();
 
         gameThread = new Thread(() -> {
-            try {
-                while (true) {
-                    if (!gameLoopPaused.get() && window.isFocused()) {
-                        window.runOnCurrentScreen((window1, screen) -> screen.tick());
-                        // 50 times per second
-                        Thread.sleep(1000 / 50);
-                    }
+            while (true) {
+                try {
+                    runGameThreadTick();
+                    // 50 times per second
+                    Thread.sleep(1000 / 50);
                 }
-            }
-            catch (InterruptedException ex) {
-                ex.printStackTrace();
-                System.exit(-1);
+                catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
             }
         }, "Game Thread");
         gameThread.start();
+    }
+
+    public static synchronized void runRenderThreadTick() {
+        try {
+            if (!gameLoopPaused.get() && window.isFocused()) {
+                window.runOnCurrentScreen((window1, screen) -> screen.repaint());
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static synchronized void runGameThreadTick() {
+        try {
+            if (!gameLoopPaused.get() && window.isFocused()) {
+                window.runOnCurrentScreen((window1, screen) -> screen.tick());
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static double getMemPercentage() {
