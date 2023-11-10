@@ -1,17 +1,15 @@
 package io.github.itzispyder.dotchaos;
 
 import io.github.itzispyder.dotchaos.data.Textures;
-import io.github.itzispyder.dotchaos.gui.Window;
 import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Main {
+public class Main implements Global {
 
     public static final AtomicBoolean gameLoopPaused = new AtomicBoolean(false);
-    public static Window window = new Window("ItziSpyder's Lab");
     public static Thread renderThread;
     public static Thread gameThread;
 
@@ -61,6 +59,7 @@ public class Main {
 
     public static synchronized void runRenderThreadTick() {
         try {
+            //System.out.println("Rendering " + window.currentScreen.getClass().getSimpleName());
             if (!gameLoopPaused.get() && window.isFocused()) {
                 window.runOnCurrentScreen((window1, screen) -> screen.repaint());
             }

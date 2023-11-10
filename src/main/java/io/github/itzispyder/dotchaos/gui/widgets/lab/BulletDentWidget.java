@@ -1,20 +1,20 @@
-package io.github.itzispyder.dotchaos.fun.object;
+package io.github.itzispyder.dotchaos.gui.widgets.lab;
 
 import io.github.itzispyder.dotchaos.data.Textures;
-import io.github.itzispyder.dotchaos.fun.FunObject;
+import io.github.itzispyder.dotchaos.gui.Widget;
 
 import java.awt.*;
 
-public class BulletDent extends FunObject {
+public class BulletDentWidget extends Widget {
 
     public final long createdAt = System.currentTimeMillis();
     public final long destroyAt = createdAt + 600_000L;
 
-    public BulletDent(int x, int y) {
+    public BulletDentWidget(int x, int y) {
         this(x, y, 30);
     }
 
-    public BulletDent(int x, int y, int size) {
+    public BulletDentWidget(int x, int y, int size) {
         super(x, y, size, size);
     }
 

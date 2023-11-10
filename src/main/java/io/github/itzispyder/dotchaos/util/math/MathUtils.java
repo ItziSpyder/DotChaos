@@ -26,11 +26,33 @@ public class MathUtils {
         return clampColor(r, g, b, 255);
     }
 
+    public static int clampX(int x, Rectangle bounds) {
+        return clamp(x, bounds.x, bounds.x + bounds.width);
+    }
+
+    public static int clampY(int y, Rectangle bounds) {
+        return clamp(y, bounds.y, bounds.y + bounds.height);
+    }
+
     public static Color getColorInRatio(double ratio, Color from, Color to) {
         int red = (int)Math.abs((from.getRed() * ratio) + (to.getRed() * (1 - ratio)));
         int green = (int)Math.abs((from.getGreen() * ratio) + (to.getGreen() * (1 - ratio)));
         int blue = (int)Math.abs((from.getBlue() * ratio) + (to.getBlue() * (1 - ratio)));
         int alpha = (int)Math.abs((from.getAlpha() * ratio) + (to.getAlpha() * (1 - ratio)));
         return clampColor(red, green, blue, alpha);
+    }
+    
+    public static Vec2i reduce(Vec2i vec) {
+        if (vec.x != 0) {
+            vec.x = vec.x + (vec.x > 0 ? -1 : 1);
+        }
+        if (vec.y != 0) {
+            vec.y = vec.y + (vec.y > 0 ? -1 : 1);
+        }
+        return vec;
+    }
+
+    public static Vec2d reduce(Vec2d vec) {
+        return reduce(vec.toInt()).toDouble();
     }
 }

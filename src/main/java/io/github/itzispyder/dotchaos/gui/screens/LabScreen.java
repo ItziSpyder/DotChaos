@@ -3,9 +3,9 @@ package io.github.itzispyder.dotchaos.gui.screens;
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.data.Sounds;
 import io.github.itzispyder.dotchaos.data.Textures;
-import io.github.itzispyder.dotchaos.fun.object.Bead;
-import io.github.itzispyder.dotchaos.fun.object.BulletDent;
 import io.github.itzispyder.dotchaos.gui.Screen;
+import io.github.itzispyder.dotchaos.gui.widgets.lab.BeadWidget;
+import io.github.itzispyder.dotchaos.gui.widgets.lab.BulletDentWidget;
 import io.github.itzispyder.dotchaos.util.Randomizer;
 import io.github.itzispyder.dotchaos.util.Timer;
 
@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class LabScreen extends Screen {
 
     public static int score = 10;
-    public final ConcurrentLinkedQueue<Bead> beads = new ConcurrentLinkedQueue<>();
-    public final ConcurrentLinkedQueue<BulletDent> dents = new ConcurrentLinkedQueue<>();
+    public final ConcurrentLinkedQueue<BeadWidget> beads = new ConcurrentLinkedQueue<>();
+    public final ConcurrentLinkedQueue<BulletDentWidget> dents = new ConcurrentLinkedQueue<>();
     public int mouseX, mouseY, gridX, gridY, gridThreshold = 50;
     public long lastShot, lastDamage;
     public final Randomizer random = new Randomizer();
@@ -155,7 +155,7 @@ public class LabScreen extends Screen {
     public void tick() {
         dents.removeIf(dent -> System.currentTimeMillis() > dent.destroyAt);
 
-        for (Bead bead : beads) {
+        for (BeadWidget bead : beads) {
             if (System.currentTimeMillis() > bead.destroyAt) {
                 this.decrementScore(bead);
                 beads.remove(bead);
@@ -165,15 +165,15 @@ public class LabScreen extends Screen {
         }
 
         if (beadTimer++ >= 60) {
-            beads.add(new Bead(-400));
+            beads.add(new BeadWidget(-400));
             beadTimer = 0;
         }
     }
 
-    public void checkCollision(Bead bead) {
+    public void checkCollision(BeadWidget bead) {
         shootGun();
 
-        for (Bead other : beads) {
+        for (BeadWidget other : beads) {
             if (other.overlaps(bead)) {
                 other.flickAgainst(bead);
                 break;
@@ -181,11 +181,11 @@ public class LabScreen extends Screen {
         }
     }
 
-    public void incrementScore(Bead bead) {
+    public void incrementScore(BeadWidget bead) {
         score += bead.getRadius();
     }
 
-    public void decrementScore(Bead bead) {
+    public void decrementScore(BeadWidget bead) {
         Sounds.play(Sounds.DAMAGE);
         lastDamage = System.currentTimeMillis();
         score -= bead.getRadius() * 5;
@@ -198,12 +198,12 @@ public class LabScreen extends Screen {
     }
 
     public void shootGun() {
-        for (Bead bead : beads) {
+        for (BeadWidget bead : beads) {
             int r = bead.getRadius();
             if (mouseX > bead.x - r && mouseX < bead.x + r && mouseY > bead.y - r && mouseY < bead.y + r) {
                 this.incrementScore(bead);
                 beads.remove(bead);
-                dents.add(new BulletDent(mouseX, mouseY));
+                dents.add(new BulletDentWidget(mouseX, mouseY));
                 lastShot = System.currentTimeMillis();
 
                 bead.tryExplodeInLab(this);

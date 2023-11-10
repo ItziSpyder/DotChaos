@@ -1,6 +1,6 @@
 package io.github.itzispyder.dotchaos.util.math;
 
-public class Vec2i {
+public final class Vec2i {
 
     public int x, y;
 
@@ -106,5 +106,10 @@ public class Vec2i {
 
     public Vec2d toDouble() {
         return new Vec2d(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "{x=%s, y=%s}".formatted(x, y);
     }
 }

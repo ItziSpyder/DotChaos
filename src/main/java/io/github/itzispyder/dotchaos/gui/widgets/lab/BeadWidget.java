@@ -1,8 +1,8 @@
-package io.github.itzispyder.dotchaos.fun.object;
+package io.github.itzispyder.dotchaos.gui.widgets.lab;
 
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.data.Sounds;
-import io.github.itzispyder.dotchaos.fun.FunObject;
+import io.github.itzispyder.dotchaos.gui.PhysicalWidget;
 import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
 import io.github.itzispyder.dotchaos.util.Randomizer;
 import io.github.itzispyder.dotchaos.util.math.MathUtils;
@@ -10,7 +10,7 @@ import io.github.itzispyder.dotchaos.util.math.Vec2d;
 
 import java.awt.*;
 
-public class Bead extends FunObject {
+public class BeadWidget extends PhysicalWidget {
 
     public static final Randomizer random = new Randomizer();
     public static final long stayTime = 3_000L;
@@ -22,22 +22,22 @@ public class Bead extends FunObject {
     public Vec2d velocity;
     public boolean hitFloor;
 
-    public Bead(int x, int y, int size, Color color) {
+    public BeadWidget(int x, int y, int size, Color color) {
         super(x, y, size, size);
         this.color = color;
         this.velocity = new Vec2d(0, 0);
         this.from = color;
     }
 
-    public Bead(int x, int y, int size) {
+    public BeadWidget(int x, int y, int size) {
         this(x, y, size, new Color(random.getRandomInt(20, 235), random.getRandomInt(20, 235), random.getRandomInt(20, 235)));
     }
 
-    public Bead(int x, int y) {
+    public BeadWidget(int x, int y) {
         this(x, y, random.getRandomInt(100, 198));
     }
 
-    public Bead(int y) {
+    public BeadWidget(int y) {
         this(0, y);
         setX(random.getRandomInt(getRadius(), (int)Main.window.getWidth() - getRadius()));
     }
@@ -120,7 +120,7 @@ public class Bead extends FunObject {
         return velocity;
     }
 
-    public boolean overlaps(Bead other) {
+    public boolean overlaps(BeadWidget other) {
         return other != this && getPos().distanceTo(other.getPos()) <= (getRadius() + other.getRadius());
     }
 
@@ -128,7 +128,7 @@ public class Bead extends FunObject {
         return lab.beads.stream().anyMatch(this::overlaps);
     }
 
-    public boolean sittingOn(Bead other) {
+    public boolean sittingOn(BeadWidget other) {
         return this.y + this.getRadius() >= other.y - other.getRadius() && overlaps(other);
     }
 
@@ -136,7 +136,7 @@ public class Bead extends FunObject {
         return lab.beads.stream().anyMatch(this::sittingOn);
     }
 
-    public void flickAgainst(Bead other) {
+    public void flickAgainst(BeadWidget other) {
         double bounceThis = 100.0 / this.getRadius();
         double bounceOther = 100.0 / other.getRadius();
 
@@ -160,7 +160,7 @@ public class Bead extends FunObject {
 
         if (r / 2 >= 30) {
             for (int i = 0; i < 2; i++) {
-                Bead bead = new Bead(x, y - (r / 4 * 3), width / 4 * 3, color);
+                BeadWidget bead = new BeadWidget(x, y - (r / 4 * 3), width / 4 * 3, color);
                 bead.setColor(this.from);
                 bead.velocity.add(random.getRandomDouble(-max, max), random.getRandomDouble(-max, max));
                 bead.hitFloor = this.hitFloor;
