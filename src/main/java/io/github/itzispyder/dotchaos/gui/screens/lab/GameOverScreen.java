@@ -1,4 +1,4 @@
-package io.github.itzispyder.dotchaos.gui.screens;
+package io.github.itzispyder.dotchaos.gui.screens.lab;
 
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.gui.Screen;

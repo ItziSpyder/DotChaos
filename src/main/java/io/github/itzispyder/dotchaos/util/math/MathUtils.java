@@ -42,7 +42,7 @@ public class MathUtils {
         return clampColor(red, green, blue, alpha);
     }
     
-    public static Vec2i reduce(Vec2i vec) {
+    public static Vector2i reduce(Vector2i vec) {
         if (vec.x != 0) {
             vec.x = vec.x + (vec.x > 0 ? -1 : 1);
         }
@@ -52,7 +52,7 @@ public class MathUtils {
         return vec;
     }
 
-    public static Vec2d reduce(Vec2d vec) {
+    public static Vector2d reduce(Vector2d vec) {
         return reduce(vec.toInt()).toDouble();
     }
 }

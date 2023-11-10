@@ -1,7 +1,7 @@
 package io.github.itzispyder.dotchaos;
 
 import io.github.itzispyder.dotchaos.data.Textures;
-import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
+import io.github.itzispyder.dotchaos.gui.screens.lab.LabScreen;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

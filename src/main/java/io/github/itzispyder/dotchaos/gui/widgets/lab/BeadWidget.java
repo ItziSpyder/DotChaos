@@ -3,10 +3,10 @@ package io.github.itzispyder.dotchaos.gui.widgets.lab;
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.data.Sounds;
 import io.github.itzispyder.dotchaos.gui.PhysicalWidget;
-import io.github.itzispyder.dotchaos.gui.screens.LabScreen;
+import io.github.itzispyder.dotchaos.gui.screens.lab.LabScreen;
 import io.github.itzispyder.dotchaos.util.Randomizer;
 import io.github.itzispyder.dotchaos.util.math.MathUtils;
-import io.github.itzispyder.dotchaos.util.math.Vec2d;
+import io.github.itzispyder.dotchaos.util.math.Vector2d;
 
 import java.awt.*;
 
@@ -19,13 +19,13 @@ public class BeadWidget extends PhysicalWidget {
     public static final Color to = new Color(20, 20, 20, 255);
     public final Color from;
     public Color color;
-    public Vec2d velocity;
+    public Vector2d velocity;
     public boolean hitFloor;
 
     public BeadWidget(int x, int y, int size, Color color) {
         super(x, y, size, size);
         this.color = color;
-        this.velocity = new Vec2d(0, 0);
+        this.velocity = new Vector2d(0, 0);
         this.from = color;
     }
 
@@ -112,11 +112,11 @@ public class BeadWidget extends PhysicalWidget {
         setHeight(radius * 2);
     }
 
-    public void setVelocity(Vec2d velocity) {
+    public void setVelocity(Vector2d velocity) {
         this.velocity = velocity;
     }
 
-    public Vec2d getVelocity() {
+    public Vector2d getVelocity() {
         return velocity;
     }
 

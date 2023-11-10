@@ -2,19 +2,19 @@ package io.github.itzispyder.dotchaos.gui;
 
 import io.github.itzispyder.dotchaos.Main;
 import io.github.itzispyder.dotchaos.util.math.MathUtils;
-import io.github.itzispyder.dotchaos.util.math.Vec2d;
-import io.github.itzispyder.dotchaos.util.math.Vec2i;
+import io.github.itzispyder.dotchaos.util.math.Vector2d;
+import io.github.itzispyder.dotchaos.util.math.Vector2i;
 
 import java.awt.*;
 
 public abstract class PhysicalWidget extends Widget {
 
-    public Vec2d velocity;
+    public Vector2d velocity;
     public boolean airResistance;
 
     public PhysicalWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.velocity = new Vec2d();
+        this.velocity = new Vector2d();
     }
 
     @Override
@@ -25,7 +25,7 @@ public abstract class PhysicalWidget extends Widget {
         }
     }
 
-    public void travelVec(Vec2d vec) {
+    public void travelVec(Vector2d vec) {
         Rectangle r = Main.window.currentScreen.getBounds();
         int x = (int)(getX() + vec.x);
         int y = (int)(getY() - vec.y);
@@ -49,28 +49,28 @@ public abstract class PhysicalWidget extends Widget {
         setHeight((int)height);
     }
 
-    public Vec2d getVelocity() {
+    public Vector2d getVelocity() {
         return velocity;
     }
 
-    public void setVelocity(Vec2d vel) {
+    public void setVelocity(Vector2d vel) {
         this.velocity = vel;
     }
 
-    public Vec2d getPos() {
-        return new Vec2d(getX(), getY());
+    public Vector2d getPos() {
+        return new Vector2d(getX(), getY());
     }
 
-    public void setPos(Vec2d vec) {
+    public void setPos(Vector2d vec) {
         setX((int)vec.x);
         setY((int)vec.y);
     }
 
-    public Vec2i getPosInt() {
-        return new Vec2i(getX(), getY());
+    public Vector2i getPosInt() {
+        return new Vector2i(getX(), getY());
     }
 
-    public void setPos(Vec2i vec) {
+    public void setPos(Vector2i vec) {
         setX(vec.x);
         setY(vec.y);
     }
